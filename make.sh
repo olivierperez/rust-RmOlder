@@ -8,6 +8,9 @@ rustc rmolder.rs --test --out-dir out_test
 echo "----- Execute : test"
 ./out_test/rmolder
 
+echo "----- Execute : rustdoc"
+rustdoc rmolder.rs
+echo "done"
 
 if [ $? == 0 ]
 then

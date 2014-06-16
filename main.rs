@@ -57,7 +57,7 @@ fn main() {
 	let mut count_deleted : uint = 0;
 	let mut count_total : uint = 0;
 	
-	let rmolder = RmOlder::new(&directory);
+	let rmolder = RmOlder::new(&directory, age);
 	
 	visit_dir(&directory, |file| {
 		println!("file: {}", file.as_str())
