@@ -23,6 +23,6 @@ then
 	rustc --out-dir out main.rs -L out
 	
 	echo "----- Execute : main"
-	./out/main -d test -a 1000000
+	./out/main -d test -a 1000000 --dry
 	
 fi

@@ -21,6 +21,7 @@ fn main() {
 	let opts = [
 		optopt("a", "age", "Set the age of files to remove", "(required)"),
 		optopt("d", "directory", "Set the workding directory", ""),
+		optflag("", "dry", "Dry run"),
 		optflag("h", "help", "Print this menu")
 	];
 	
@@ -53,8 +54,11 @@ fn main() {
 	
 	let rmolder = RmOlder::new(&directory, age);
 	
-	// TODO - dry-run
-	let (count_deleted, count_total) = rmolder.dry_run();
+	// Select dry-run or not
+	let (count_deleted, count_total) = match matches.opt_present("dry") {
+		true => rmolder.dry_run(),
+		false => rmolder.run()
+	};
 	
 	println!("Files deleted : {}/{}", count_deleted, count_total);
 }
