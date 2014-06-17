@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="The rmolder library documentation.">
 
-    <title>rmolder - Rust</title>
+    <title>rmolder::Args - Rust</title>
 
     <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
           rel='stylesheet' type='text/css'>
@@ -24,7 +24,7 @@
     <section class="sidebar">
         
 
-        <p class='location'></p>
+        <p class='location'><a href='index.html'>rmolder</a></p><div class='block struct'><h2>Structs</h2><a class='struct current' href='struct.Args.html'>Args</a><br/><a class='struct ' href='struct.RmOlder.html'>RmOlder</a><br/></div>
     </section>
 
     <nav class="sub">
@@ -38,25 +38,25 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'>Crate <a class='mod' href=''>rmolder</a><a class='source' id='src-0' href='../src/rmolder/rmolder.rs.html#1-238'>[src]</a></h1>
-<h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
-<table>
-                    <tr>
-                        <td><a class='struct' href='struct.Args.html'
-                               title='rmolder::Args'>Args</a></td>
-                        <td class='docblock short'><p>Args helps to retrieve command line arguments for RmOlder applications.</p>
-</td>
-                    </tr>
-                
-                    <tr>
-                        <td><a class='struct' href='struct.RmOlder.html'
-                               title='rmolder::RmOlder'>RmOlder</a></td>
-                        <td class='docblock short'><p>RmOlder is a tool which delete too old files into a directory.<br/>
-Just specify a working directory and a maximum age, then let him do the thing.</p>
-</td>
-                    </tr>
-                </table></section>
+    <section id='main' class="content struct">
+<h1 class='fqn'>Struct <a href='index.html'>rmolder</a>::<a class='struct' href=''>Args</a><a class='source' id='src-22' href='../src/rmolder/rmolder.rs.html#23-32'>[src]</a></h1>
+<pre class='rust struct'>pub struct Args&lt;'s&gt; {
+    pub help: <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a>,
+    pub dry: <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a>,
+    pub age: <a href='http://doc.rust-lang.org/std/primitive.u64.html'>u64</a>,
+    pub directory: <a class='struct' href='http://doc.rust-lang.org/std/path/posix/struct.Path.html' title='std::path::posix::Path'>Path</a>,
+}</pre><div class='docblock'><p>Args helps to retrieve command line arguments for RmOlder applications.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr><td id='structfield.help'><code>help</code></td><td><div class='docblock'><p>If true, should show usage of the application.</p>
+</div></td></tr><tr><td id='structfield.dry'><code>dry</code></td><td><div class='docblock'><p>If true, should not really remove old files, but just show them.</p>
+</div></td></tr><tr><td id='structfield.age'><code>age</code></td><td><div class='docblock'><p>The age from where the file is reported as old.</p>
+</div></td></tr><tr><td id='structfield.directory'><code>directory</code></td><td><div class='docblock'><p>The working directory.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'s&gt; <a class='struct' href='../rmolder/struct.Args.html' title='rmolder::Args'>Args</a>&lt;'s&gt;</code></h3><div class='methods'><h4 id='method.new_from_args' class='method'><code>fn <a href='#method.new_from_args' class='fnname'>new_from_args</a>() -&gt; <a class='struct' href='../rmolder/struct.Args.html' title='rmolder::Args'>Args</a></code></h4>
+<div class='docblock'><p>Create a new Args with command line arguments.</p>
+<pre class='rust '>
+<span class='kw'>let</span> <span class='ident'>args</span> <span class='op'>=</span> <span class='ident'>Args</span>::<span class='ident'>new_from_args</span>;
+</pre>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>

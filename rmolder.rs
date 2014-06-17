@@ -1,9 +1,12 @@
 #![crate_id = "rmolder#0.42"]
 
+extern crate getopts;
 extern crate time;
 
-use std::path::posix::Path;
+use getopts::{optopt,optflag,getopts};
 use std::io::fs;
+use std::os;
+use std::path::posix::Path;
 
 #[cfg(test)]
 use std::io::fs::File;
@@ -11,10 +14,21 @@ use std::io::fs::File;
 /* --- Struct --- */
 /// RmOlder is a tool which delete too old files into a directory.<br/>
 /// Just specify a working directory and a maximum age, then let him do the thing.
-
 pub struct RmOlder<'s> {
 	dir: &'s Path,
 	limit_age: u64
+}
+
+/// Args helps to retrieve command line arguments for RmOlder applications.
+pub struct Args<'s> {
+	/// If true, should show usage of the application.
+	pub help: bool,
+	/// If true, should not really remove old files, but just show them.
+	pub dry: bool,
+	/// The age from where the file is reported as old.
+	pub age: u64,
+	/// The working directory.
+	pub directory: Path,
 }
 
 /* --- Impl --- */
@@ -92,6 +106,52 @@ impl<'s> RmOlder<'s> {
 	}
 }
 
+impl<'s> Args<'s> {
+	/// Create a new Args with command line arguments.
+	///
+	/// ```rust{.example}
+	/// let args = Args::new_from_args;
+	/// ```
+	pub fn new_from_args() -> Args {
+		let args = os::args();
+		
+		let opts = [
+			optopt("a", "age", "Set the age of files to remove", "(required)"),
+			optopt("d", "directory", "Set the workding directory", ""),
+			optflag("", "dry", "Dry run"),
+			optflag("h", "help", "Print this menu")
+		];
+		
+		let args = match getopts(args.tail(), opts) {
+			Ok(m) => m,
+			Err(f) => fail!(f.to_err_msg())
+		};
+		
+		Args {
+			help: args.opt_present("h"),
+			dry: args.opt_present("dry"),
+			age: Args::compute_age(args.opt_str("a")),
+			directory: Args::compute_directory(args.opt_str("d"))
+		}
+	}
+	
+	fn compute_age(opt: Option<String>) -> u64 {
+		match opt {
+			Some(a) => 	match std::u64::parse_bytes(a.as_bytes(), 10) {
+							Some(x) => x,
+							_ => 0
+						},
+			None => fail!("The max age is not well defined!")
+		}
+	}
+	
+	fn compute_directory(opt: Option<String>) -> Path {
+		match opt {
+			Some(d) => Path::new(d),
+			None => fail!("The working directory is not well defined!")
+		}
+	}
+}
 /* --- Test --- */
 
 #[cfg(test)]
