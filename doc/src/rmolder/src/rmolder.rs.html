@@ -278,6 +278,10 @@
 <span id='238'>238</span>
 <span id='239'>239</span>
 <span id='240'>240</span>
+<span id='241'>241</span>
+<span id='242'>242</span>
+<span id='243'>243</span>
+<span id='244'>244</span>
 </pre><pre class='rust '>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_id</span> <span class='op'>=</span> <span class='string'>&quot;rmolder#0.42&quot;</span>]</span>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span> <span class='op'>=</span> <span class='string'>&quot;rlib&quot;</span>]</span>
@@ -288,10 +292,8 @@
 <span class='kw'>use</span> <span class='ident'>getopts</span>::{<span class='ident'>optopt</span>,<span class='ident'>optflag</span>,<span class='ident'>getopts</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>fs</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>os</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>path</span>::<span class='ident'>posix</span>::<span class='ident'>Path</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>path</span>::<span class='ident'>posix</span>::<span class='ident'>Path</span>;<span class='comment'>
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>fs</span>::<span class='ident'>File</span>;<span class='comment'>
 
 /* --- Struct --- */
 </span><span class='doccomment'>/// RmOlder is a tool which delete too old files into a directory.&lt;br/&gt;
@@ -437,88 +439,94 @@
 /* --- Test --- */
 
 </span><span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>static</span> <span class='ident'>TEST_DIR</span>:<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span> <span class='op'>=</span> <span class='string'>&quot;./run-test&quot;</span>;
+<span class='kw'>mod</span> <span class='ident'>tests</span> {
+	
+	<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>time</span>;
+	
+	<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>fs</span>;
+	<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>fs</span>::<span class='ident'>File</span>;
+	<span class='kw'>use</span> <span class='ident'>super</span>::<span class='ident'>RmOlder</span>;
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>fn</span> <span class='ident'>create_file</span>(<span class='ident'>filepath</span> : <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>File</span> {
-	<span class='ident'>File</span>::<span class='ident'>create</span>(<span class='kw-2'>&amp;</span><span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{}/{}&quot;</span>, <span class='ident'>TEST_DIR</span>, <span class='ident'>filepath</span>))).<span class='ident'>unwrap</span>()
+	<span class='kw'>static</span> <span class='ident'>TEST_DIR</span>:<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span> <span class='op'>=</span> <span class='string'>&quot;./run-test&quot;</span>;
+
+	<span class='kw'>fn</span> <span class='ident'>create_file</span>(<span class='ident'>filepath</span> : <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>File</span> {
+		<span class='ident'>File</span>::<span class='ident'>create</span>(<span class='kw-2'>&amp;</span><span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{}/{}&quot;</span>, <span class='ident'>TEST_DIR</span>, <span class='ident'>filepath</span>))).<span class='ident'>unwrap</span>()
+	}
+
+	<span class='kw'>fn</span> <span class='ident'>delete_file</span>(<span class='ident'>path</span> : <span class='kw-2'>&amp;</span><span class='ident'>File</span>) {
+		<span class='kw'>match</span> <span class='ident'>fs</span>::<span class='ident'>unlink</span>(<span class='ident'>path</span>.<span class='ident'>path</span>()) {_<span class='op'>=&gt;</span>()};
+	}
+
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>shoud_create_rmolder</span>() {
+		<span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>TEST_DIR</span>);
+		<span class='ident'>RmOlder</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='number'>42</span>);
+	}
+
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>should_list_files</span>() {<span class='comment'>
+		// Before
+		</span><span class='kw'>let</span> <span class='ident'>one</span> <span class='op'>=</span> <span class='ident'>create_file</span>(<span class='string'>&quot;should_list_files_one&quot;</span>);
+		<span class='kw'>let</span> <span class='ident'>two</span> <span class='op'>=</span> <span class='ident'>create_file</span>(<span class='string'>&quot;should_list_files_two&quot;</span>);<span class='comment'>
+		
+		// Given
+		</span><span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>TEST_DIR</span>);
+		<span class='kw'>let</span> <span class='ident'>rmolder</span> <span class='op'>=</span> <span class='ident'>RmOlder</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='number'>42</span>);<span class='comment'>
+		
+		// When
+		</span><span class='kw'>let</span> <span class='ident'>files</span> <span class='op'>=</span> <span class='ident'>rmolder</span>.<span class='ident'>find</span>(<span class='op'>|</span>_<span class='op'>|</span> <span class='boolval'>true</span>);<span class='comment'>
+		
+		// Then
+		</span><span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>files</span>.<span class='ident'>contains</span>(<span class='ident'>one</span>.<span class='ident'>path</span>()));
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>files</span>.<span class='ident'>contains</span>(<span class='ident'>two</span>.<span class='ident'>path</span>()));<span class='comment'>
+		
+		// After
+		</span><span class='ident'>delete_file</span>(<span class='kw-2'>&amp;</span><span class='ident'>one</span>);
+		<span class='ident'>delete_file</span>(<span class='kw-2'>&amp;</span><span class='ident'>two</span>);
+	}
+
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>should_list_files_with_filter</span>() {<span class='comment'>
+		// Before
+		</span><span class='kw'>let</span> <span class='ident'>one</span> <span class='op'>=</span> <span class='ident'>create_file</span>(<span class='string'>&quot;should_list_files_with_filter_one&quot;</span>);
+		<span class='kw'>let</span> <span class='ident'>two</span> <span class='op'>=</span> <span class='ident'>create_file</span>(<span class='string'>&quot;should_list_files_with_filter_two&quot;</span>);<span class='comment'>
+		
+		// Given
+		</span><span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>TEST_DIR</span>);
+		<span class='kw'>let</span> <span class='ident'>rmolder</span> <span class='op'>=</span> <span class='ident'>RmOlder</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='number'>42</span>);<span class='comment'>
+		
+		// When
+		</span><span class='kw'>let</span> <span class='ident'>files</span> <span class='op'>=</span> <span class='ident'>rmolder</span>.<span class='ident'>find</span>(<span class='op'>|</span><span class='ident'>path</span><span class='op'>|</span> <span class='ident'>path</span>.<span class='ident'>filename_str</span>().<span class='ident'>unwrap</span>().<span class='ident'>contains</span>(<span class='string'>&quot;on&quot;</span>));<span class='comment'>
+		
+		// Then
+		</span><span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>files</span>.<span class='ident'>contains</span>(<span class='ident'>one</span>.<span class='ident'>path</span>()));<span class='comment'>
+		//assert!(!files.contains(two.path()));
+		
+		// After
+		</span><span class='ident'>delete_file</span>(<span class='kw-2'>&amp;</span><span class='ident'>one</span>);
+		<span class='ident'>delete_file</span>(<span class='kw-2'>&amp;</span><span class='ident'>two</span>);
+	}
+
+	<span class='attribute'>#[<span class='ident'>test</span>]</span>
+	<span class='kw'>fn</span> <span class='ident'>should_compare_files_ages</span>() {<span class='comment'>
+		// Given
+		</span><span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>TEST_DIR</span>);
+		<span class='kw'>let</span> <span class='ident'>limit_age</span> <span class='op'>=</span> <span class='number'>1000</span>;
+		<span class='kw'>let</span> <span class='ident'>rmolder</span> <span class='op'>=</span> <span class='ident'>RmOlder</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='ident'>limit_age</span>);
+		
+		<span class='kw'>let</span> <span class='ident'>now</span> <span class='op'>=</span> <span class='ident'>time</span>::<span class='ident'>now</span>().<span class='ident'>to_timespec</span>().<span class='ident'>sec</span> <span class='kw'>as</span> <span class='ident'>u64</span>;
+		<span class='kw'>let</span> <span class='ident'>too_old_age</span> <span class='op'>=</span> <span class='ident'>now</span> <span class='op'>-</span> <span class='number'>42000</span>;
+		<span class='kw'>let</span> <span class='ident'>young_enough_age</span> <span class='op'>=</span> <span class='ident'>now</span> <span class='op'>-</span> <span class='number'>42</span>;<span class='comment'>
+		
+		// When
+		</span><span class='kw'>let</span> <span class='ident'>too_old</span> <span class='op'>=</span> <span class='ident'>rmolder</span>.<span class='ident'>is_too_old</span>(<span class='ident'>too_old_age</span>);
+		<span class='kw'>let</span> <span class='ident'>young_enough</span> <span class='op'>=</span> <span class='ident'>rmolder</span>.<span class='ident'>is_too_old</span>(<span class='ident'>young_enough_age</span>);<span class='comment'>
+		
+		// Then
+		</span><span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>too_old</span>, <span class='string'>&quot;the &#39;too_old_age&#39; must be too old&quot;</span>);
+		<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>young_enough</span>, <span class='string'>&quot;now+42 is not too old&quot;</span>);
+	}
 }
-
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>fn</span> <span class='ident'>delete_file</span>(<span class='ident'>path</span> : <span class='kw-2'>&amp;</span><span class='ident'>File</span>) {
-	<span class='kw'>match</span> <span class='ident'>fs</span>::<span class='ident'>unlink</span>(<span class='ident'>path</span>.<span class='ident'>path</span>()) {_<span class='op'>=&gt;</span>()};
-}
-
-<span class='attribute'>#[<span class='ident'>test</span>]</span>
-<span class='kw'>fn</span> <span class='ident'>shoud_create_rmolder</span>() {
-	<span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>TEST_DIR</span>);
-	<span class='ident'>RmOlder</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='number'>42</span>);
-}
-
-<span class='attribute'>#[<span class='ident'>test</span>]</span>
-<span class='kw'>fn</span> <span class='ident'>should_list_files</span>() {<span class='comment'>
-	// Before
-	</span><span class='kw'>let</span> <span class='ident'>one</span> <span class='op'>=</span> <span class='ident'>create_file</span>(<span class='string'>&quot;should_list_files_one&quot;</span>);
-	<span class='kw'>let</span> <span class='ident'>two</span> <span class='op'>=</span> <span class='ident'>create_file</span>(<span class='string'>&quot;should_list_files_two&quot;</span>);<span class='comment'>
-	
-	// Given
-	</span><span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>TEST_DIR</span>);
-	<span class='kw'>let</span> <span class='ident'>rmolder</span> <span class='op'>=</span> <span class='ident'>RmOlder</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='number'>42</span>);<span class='comment'>
-	
-	// When
-	</span><span class='kw'>let</span> <span class='ident'>files</span> <span class='op'>=</span> <span class='ident'>rmolder</span>.<span class='ident'>find</span>(<span class='op'>|</span>_<span class='op'>|</span> <span class='boolval'>true</span>);<span class='comment'>
-	
-	// Then
-	</span><span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>files</span>.<span class='ident'>contains</span>(<span class='ident'>one</span>.<span class='ident'>path</span>()));
-	<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>files</span>.<span class='ident'>contains</span>(<span class='ident'>two</span>.<span class='ident'>path</span>()));<span class='comment'>
-	
-	// After
-	</span><span class='ident'>delete_file</span>(<span class='kw-2'>&amp;</span><span class='ident'>one</span>);
-	<span class='ident'>delete_file</span>(<span class='kw-2'>&amp;</span><span class='ident'>two</span>);
-}
-
-<span class='attribute'>#[<span class='ident'>test</span>]</span>
-<span class='kw'>fn</span> <span class='ident'>should_list_files_with_filter</span>() {<span class='comment'>
-	// Before
-	</span><span class='kw'>let</span> <span class='ident'>one</span> <span class='op'>=</span> <span class='ident'>create_file</span>(<span class='string'>&quot;should_list_files_with_filter_one&quot;</span>);
-	<span class='kw'>let</span> <span class='ident'>two</span> <span class='op'>=</span> <span class='ident'>create_file</span>(<span class='string'>&quot;should_list_files_with_filter_two&quot;</span>);<span class='comment'>
-	
-	// Given
-	</span><span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>TEST_DIR</span>);
-	<span class='kw'>let</span> <span class='ident'>rmolder</span> <span class='op'>=</span> <span class='ident'>RmOlder</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='number'>42</span>);<span class='comment'>
-	
-	// When
-	</span><span class='kw'>let</span> <span class='ident'>files</span> <span class='op'>=</span> <span class='ident'>rmolder</span>.<span class='ident'>find</span>(<span class='op'>|</span><span class='ident'>path</span><span class='op'>|</span> <span class='ident'>path</span>.<span class='ident'>filename_str</span>().<span class='ident'>unwrap</span>().<span class='ident'>contains</span>(<span class='string'>&quot;on&quot;</span>));<span class='comment'>
-	
-	// Then
-	</span><span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>files</span>.<span class='ident'>contains</span>(<span class='ident'>one</span>.<span class='ident'>path</span>()));<span class='comment'>
-	//assert!(!files.contains(two.path()));
-	
-	// After
-	</span><span class='ident'>delete_file</span>(<span class='kw-2'>&amp;</span><span class='ident'>one</span>);
-	<span class='ident'>delete_file</span>(<span class='kw-2'>&amp;</span><span class='ident'>two</span>);
-}
-
-<span class='attribute'>#[<span class='ident'>test</span>]</span>
-<span class='kw'>fn</span> <span class='ident'>should_compare_files_ages</span>() {<span class='comment'>
-	// Given
-	</span><span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='ident'>TEST_DIR</span>);
-	<span class='kw'>let</span> <span class='ident'>limit_age</span> <span class='op'>=</span> <span class='number'>1000</span>;
-	<span class='kw'>let</span> <span class='ident'>rmolder</span> <span class='op'>=</span> <span class='ident'>RmOlder</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='ident'>limit_age</span>);
-	
-	<span class='kw'>let</span> <span class='ident'>now</span> <span class='op'>=</span> <span class='ident'>time</span>::<span class='ident'>now</span>().<span class='ident'>to_timespec</span>().<span class='ident'>sec</span> <span class='kw'>as</span> <span class='ident'>u64</span>;
-	<span class='kw'>let</span> <span class='ident'>too_old_age</span> <span class='op'>=</span> <span class='ident'>now</span> <span class='op'>-</span> <span class='number'>42000</span>;
-	<span class='kw'>let</span> <span class='ident'>young_enough_age</span> <span class='op'>=</span> <span class='ident'>now</span> <span class='op'>-</span> <span class='number'>42</span>;<span class='comment'>
-	
-	// When
-	</span><span class='kw'>let</span> <span class='ident'>too_old</span> <span class='op'>=</span> <span class='ident'>rmolder</span>.<span class='ident'>is_too_old</span>(<span class='ident'>too_old_age</span>);
-	<span class='kw'>let</span> <span class='ident'>young_enough</span> <span class='op'>=</span> <span class='ident'>rmolder</span>.<span class='ident'>is_too_old</span>(<span class='ident'>young_enough_age</span>);<span class='comment'>
-	
-	// Then
-	</span><span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>too_old</span>, <span class='string'>&quot;the &#39;too_old_age&#39; must be too old&quot;</span>);
-	<span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>young_enough</span>, <span class='string'>&quot;now+42 is not too old&quot;</span>);
-}
-
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

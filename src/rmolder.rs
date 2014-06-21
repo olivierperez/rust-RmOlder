@@ -9,10 +9,9 @@ use std::io::fs;
 use std::os;
 use std::path::posix::Path;
 
-#[cfg(test)]
-use std::io::fs::File;
 
 /* --- Struct --- */
+
 /// RmOlder is a tool which delete too old files into a directory.<br/>
 /// Just specify a working directory and a maximum age, then let him do the thing.
 pub struct RmOlder<'s> {
@@ -153,88 +152,95 @@ impl<'s> Args<'s> {
 		}
 	}
 }
+
 /* --- Test --- */
 
 #[cfg(test)]
-static TEST_DIR:&'static str = "./run-test";
+mod tests {
+	
+	extern crate time;
+	
+	use std::io::fs;
+	use std::io::fs::File;
+	use super::RmOlder;
 
-#[cfg(test)]
-fn create_file(filepath : &str) -> File {
-	File::create(&Path::new(format!("{}/{}", TEST_DIR, filepath))).unwrap()
+	static TEST_DIR:&'static str = "./run-test";
+
+	fn create_file(filepath : &str) -> File {
+		File::create(&Path::new(format!("{}/{}", TEST_DIR, filepath))).unwrap()
+	}
+
+	fn delete_file(path : &File) {
+		match fs::unlink(path.path()) {_=>()};
+	}
+
+	#[test]
+	fn shoud_create_rmolder() {
+		let path = Path::new(TEST_DIR);
+		RmOlder::new(&path, 42);
+	}
+
+	#[test]
+	fn should_list_files() {
+		// Before
+		let one = create_file("should_list_files_one");
+		let two = create_file("should_list_files_two");
+		
+		// Given
+		let path = Path::new(TEST_DIR);
+		let rmolder = RmOlder::new(&path, 42);
+		
+		// When
+		let files = rmolder.find(|_| true);
+		
+		// Then
+		assert!(files.contains(one.path()));
+		assert!(files.contains(two.path()));
+		
+		// After
+		delete_file(&one);
+		delete_file(&two);
+	}
+
+	#[test]
+	fn should_list_files_with_filter() {
+		// Before
+		let one = create_file("should_list_files_with_filter_one");
+		let two = create_file("should_list_files_with_filter_two");
+		
+		// Given
+		let path = Path::new(TEST_DIR);
+		let rmolder = RmOlder::new(&path, 42);
+		
+		// When
+		let files = rmolder.find(|path| path.filename_str().unwrap().contains("on"));
+		
+		// Then
+		assert!(files.contains(one.path()));
+		//assert!(!files.contains(two.path()));
+		
+		// After
+		delete_file(&one);
+		delete_file(&two);
+	}
+
+	#[test]
+	fn should_compare_files_ages() {
+		// Given
+		let path = Path::new(TEST_DIR);
+		let limit_age = 1000;
+		let rmolder = RmOlder::new(&path, limit_age);
+		
+		let now = time::now().to_timespec().sec as u64;
+		let too_old_age = now - 42000;
+		let young_enough_age = now - 42;
+		
+		// When
+		let too_old = rmolder.is_too_old(too_old_age);
+		let young_enough = rmolder.is_too_old(young_enough_age);
+		
+		// Then
+		assert!(too_old, "the 'too_old_age' must be too old");
+		assert!(!young_enough, "now+42 is not too old");
+	}
 }
-
-#[cfg(test)]
-fn delete_file(path : &File) {
-	match fs::unlink(path.path()) {_=>()};
-}
-
-#[test]
-fn shoud_create_rmolder() {
-	let path = Path::new(TEST_DIR);
-	RmOlder::new(&path, 42);
-}
-
-#[test]
-fn should_list_files() {
-	// Before
-	let one = create_file("should_list_files_one");
-	let two = create_file("should_list_files_two");
-	
-	// Given
-	let path = Path::new(TEST_DIR);
-	let rmolder = RmOlder::new(&path, 42);
-	
-	// When
-	let files = rmolder.find(|_| true);
-	
-	// Then
-	assert!(files.contains(one.path()));
-	assert!(files.contains(two.path()));
-	
-	// After
-	delete_file(&one);
-	delete_file(&two);
-}
-
-#[test]
-fn should_list_files_with_filter() {
-	// Before
-	let one = create_file("should_list_files_with_filter_one");
-	let two = create_file("should_list_files_with_filter_two");
-	
-	// Given
-	let path = Path::new(TEST_DIR);
-	let rmolder = RmOlder::new(&path, 42);
-	
-	// When
-	let files = rmolder.find(|path| path.filename_str().unwrap().contains("on"));
-	
-	// Then
-	assert!(files.contains(one.path()));
-	//assert!(!files.contains(two.path()));
-	
-	// After
-	delete_file(&one);
-	delete_file(&two);
-}
-
-#[test]
-fn should_compare_files_ages() {
-	// Given
-	let path = Path::new(TEST_DIR);
-	let limit_age = 1000;
-	let rmolder = RmOlder::new(&path, limit_age);
-	
-	let now = time::now().to_timespec().sec as u64;
-	let too_old_age = now - 42000;
-	let young_enough_age = now - 42;
-	
-	// When
-	let too_old = rmolder.is_too_old(too_old_age);
-	let young_enough = rmolder.is_too_old(young_enough_age);
-	
-	// Then
-	assert!(too_old, "the 'too_old_age' must be too old");
-	assert!(!young_enough, "now+42 is not too old");
-}
-
