@@ -32,5 +32,5 @@ build: $(SOURCE)
 	$(RUSTC) --out-dir $(TARGET)/bin $(SOURCE)/main.rs -L $(TARGET)/bin
 
 run: $(TARGET)
-	$(TARGET)/bin/main -d test -a 1000000 --dry
+	$(TARGET)/bin/main -d run-test -a 1000000 --dry
 

@@ -156,7 +156,7 @@ impl<'s> Args<'s> {
 /* --- Test --- */
 
 #[cfg(test)]
-static TEST_DIR:&'static str = "./test";
+static TEST_DIR:&'static str = "./run-test";
 
 #[cfg(test)]
 fn create_file(filepath : &str) -> File {
