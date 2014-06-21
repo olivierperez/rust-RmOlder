@@ -1,20 +1,21 @@
 .PHONY=all
 
-all: clean test doc build run
+all: clean tests doc build run
 clean:
+	rm -Rf target
 	mkdir -p target/bin target/test
 
-test:
-	rustc rmolder.rs --test --out-dir out_test
-	./out_test/rmolder
+tests:
+	rustc rmolder.rs --test --out-dir target/test
+	./target/test/rmolder
 
 doc:
 	rustdoc rmolder.rs
 
 build:
-	rustc --crate-type=lib --out-dir out rmolder.rs
-	rustc --out-dir out main.rs -L out
+	rustc --out-dir target/bin rmolder.rs
+	rustc --out-dir target/bin main.rs -L target/bin
 
 run:
-	./out/main -d test -a 1000000 --dry
+	./target/bin/main -d test -a 1000000 --dry
 
