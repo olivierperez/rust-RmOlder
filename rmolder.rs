@@ -1,4 +1,5 @@
 #![crate_id = "rmolder#0.42"]
+#![crate_type = "rlib"]
 
 extern crate getopts;
 extern crate time;
