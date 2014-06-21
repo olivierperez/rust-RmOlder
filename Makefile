@@ -1,21 +1,36 @@
 .PHONY=all
 
+# Root of the project
+ROOT = $(dir $(firstword $(MAKEFILE_LIST)))
+
+# Path to rustc executable
+RUSTC ?= rustc
+RUSTDOC ?= rustdoc
+
+# Flags to pass rustc
+RUSTC_FLAGS ?= -O
+
+# Target directory
+TARGET ?= $(ROOT)target
+
+# Source directory
+SOURCE = src
+
 all: clean tests doc build run
 clean:
-	rm -Rf target
-	mkdir -p target/bin target/test
+	mkdir -p $(TARGET)/bin $(TARGET)/test
 
-tests:
-	rustc rmolder.rs --test --out-dir target/test
-	./target/test/rmolder
+tests: $(SOURCE) | $(TARGET)
+	$(RUSTC) $(SOURCE)/rmolder.rs --test --out-dir $(TARGET)/test
+	$(TARGET)/test/rmolder
 
-doc:
-	rustdoc rmolder.rs
+doc: $(SOURCE)
+	$(RUSTDOC) $(SOURCE)/rmolder.rs
 
-build:
-	rustc --out-dir target/bin rmolder.rs
-	rustc --out-dir target/bin main.rs -L target/bin
+build: $(SOURCE)
+	$(RUSTC) --out-dir $(TARGET)/bin $(SOURCE)/rmolder.rs
+	$(RUSTC) --out-dir $(TARGET)/bin $(SOURCE)/main.rs -L $(TARGET)/bin
 
-run:
-	./target/bin/main -d test -a 1000000 --dry
+run: $(TARGET)
+	$(TARGET)/bin/main -d test -a 1000000 --dry
 
