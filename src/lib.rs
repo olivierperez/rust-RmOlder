@@ -1,5 +1,7 @@
-#![crate_id = "rmolder#0.42"]
-#![crate_type = "rlib"]
+#![crate_id = "rmolder#0.0.1"]
+#![deny(missing_doc)]
+
+//! rmolder is a rust library that delete old files from a given directory when they becomes too old. 
 
 extern crate getopts;
 extern crate time;
@@ -93,8 +95,8 @@ impl<'s> RmOlder<'s> {
 	
 	/// Find all the files that match the given predicate
 	fn find(&self, predicate: |path:&Path| -> bool) -> Vec<Path> {
-		match fs::readdir(self.dir) {
-			Ok(mut f) => {f.retain(predicate); f}, // TODO Replace with .iter().filter(...)
+		match fs::readdir(self.dir) { // TODO Replace with std::io::fs::Directories
+			Ok(mut f) => {f.retain(predicate); f},
 			Err(_) => vec!()
 		}
 	}
@@ -124,7 +126,7 @@ impl<'s> Args<'s> {
 		
 		let args = match getopts(args.tail(), opts) {
 			Ok(m) => m,
-			Err(f) => fail!(f.to_err_msg())
+			Err(f) => fail!(f)
 		};
 		
 		Args {
@@ -160,14 +162,16 @@ mod tests {
 	
 	extern crate time;
 	
+	use std::io::FilePermission;
 	use std::io::fs;
 	use std::io::fs::File;
 	use super::RmOlder;
 
 	static TEST_DIR:&'static str = "./run-test";
 
-	fn create_file(filepath : &str) -> File {
-		File::create(&Path::new(format!("{}/{}", TEST_DIR, filepath))).unwrap()
+	fn create_file(filename : &str) -> File {
+		fs::mkdir_recursive(&Path::new(TEST_DIR), FilePermission::all());
+		File::create(&Path::new(format!("{}/{}", TEST_DIR, filename))).unwrap()
 	}
 
 	fn delete_file(path : &File) {
