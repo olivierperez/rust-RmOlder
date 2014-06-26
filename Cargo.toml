@@ -1,0 +1,13 @@
+[package]
+
+name = "rmolder"
+version = "0.0.1"
+readme = "README.md"
+authors = ["Olivier PEREZ <olivier@olivierperez.fr>"]
+tags = []
+
+[[lib]]
+
+name = "rmolder"
+path = "src/lib.rs"
+
